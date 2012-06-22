@@ -1,5 +1,4 @@
 
-
 // Command modifiers
 var A = 1;  // A & B are overloaded for instruction access and operators
 var B = 2;
@@ -144,12 +143,12 @@ var Core;
       return (((num + inc) % max) + max) % max;
     };
 
-    // Helpers to determine whether we _shouldn't_ jump/skip
-    var notJmz = function (a, b) { return b !== 0; };
-    var notJmn = function (a, b) { return b === 0; };
-    var notSeq = function (a, b) { return a != b; };
-    var notSne = function (a, b) { return a == b; };
-    var notSlt = function (a, b) { return a >= b; };
+    // Helpers to determine whether we should jump/skip
+    var doJmz = function (a, b) { return b === 0; };
+    var doJmn = function (a, b) { return b !== 0; };
+    var doSeq = function (a, b) { return a == b; };
+    var doSne = function (a, b) { return a != b; };
+    var doSlt = function (a, b) { return a < b; };
 
 
 
@@ -402,11 +401,11 @@ var Core;
       var sourceCMD = this.core[source][CMD];
 
       var testFunc;
-      if (cmd & JMZ) testFunc = notJmz;
-      if (cmd & (JMN|DJN)) testFunc = notJmn;
-      if (cmd & (CMP|SEQ)) testFunc = notSeq;
-      if (cmd & SNE) testFunc = notSne;
-      if (cmd & SLT) testFunc = notSlt;
+      if (cmd & JMZ) testFunc = doJmz;
+      if (cmd & (JMN|DJN)) testFunc = doJmn;
+      if (cmd & (CMP|SEQ)) testFunc = doSeq;
+      if (cmd & SNE) testFunc = doSne;
+      if (cmd & SLT) testFunc = doSlt;
   
       // DJN decrements before testing
       if (cmd & DJN) {
@@ -415,6 +414,7 @@ var Core;
       }
 
       // do the testing
+      // FIXME: this block needs to be rewritten to ensure all modifiers and properly handled
       var jump = true;
       if (cmd & (A|F|I)) jump = testFunc(sourceA, targetA);
       if (cmd & (B|F|I)) jump = testFunc(sourceB, targetB);
